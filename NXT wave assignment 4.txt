@@ -1,0 +1,57 @@
+// PropertyListings.js
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+const PropertyListings = () => {
+  const [properties, setProperties] = useState([]);
+  const [filters, setFilters] = useState({
+    location: '',
+    priceRange: '',
+    bedrooms: '',
+    amenities: '',
+  });
+
+  useEffect(() => {
+    // Fetch properties from database or API
+    const fetchProperties = async () => {
+      const response = await fetch('/api/properties');
+      const data = await response.json();
+      setProperties(data);
+    };
+    fetchProperties();
+  }, []);
+
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  };
+
+  const filteredProperties = properties.filter((property) => {
+    // Apply filters to properties
+    const { location, priceRange, bedrooms, amenities } = filters;
+    return (
+      (location === '' || property.location === location) &&
+      (priceRange === '' || property.price >= priceRange.min && property.price <= priceRange.max) &&
+      (bedrooms === '' || property.bedrooms === bedrooms) &&
+      (amenities === '' || property.amenities.includes(amenities))
+    );
+  });
+
+  return (
+    <div>
+      <h1>Property Listings</h1>
+      <form>
+        <label>
+          Location:
+          <select name="location" value={filters.location} onChange={handleFilterChange}>
+            <option value="">All</option>
+            <option value="New York">New York</option>
+            <option value="Los Angeles">Los Angeles</option>
+            <option value="Chicago">Chicago</option>
+          </select>
+        </label>
+        <label>
+          Price Range:
+          <select name="priceRange" value={filters.priceRange} onChange={handleFilterChange}>
+            <option value="">All</option>
+            <option value="100000-200000">$100,000 - $200,000</option
